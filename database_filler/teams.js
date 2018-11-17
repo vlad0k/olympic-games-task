@@ -10,13 +10,12 @@ function importer(db, inputData, teams){
 			teams[elem[7]] = elem[6];
 		}
 	});
-	
 	db.serialize( () => {
-		db.run('BEGIN');
+		db.run('BEGIN TRANSACTION');
 		for (key in teams) {
 			db.run(teamRowImportSQL, [key,teams[key]]);
 		} 
-		db.run('END');
+		db.run('COMMIT');
 	});
 }
 

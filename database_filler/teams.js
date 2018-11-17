@@ -1,14 +1,27 @@
-function importer(db, inputData){
+let teams = {}; // dictionary NOC : country
+function importer(db, inputData, teams){
+	indexDrop = `DROP INDEX IF EXIST db.teams`;
+
 	teamRowImportSQL = `INSERT INTO teams(noc_name, name) VALUES (?, ?)`;
-	db.run(teamRowImportSQL, [inputData[2][7],inputData[2][6]]);
-	// inputData.forEach((elem) => {
-	// 	reg = /-\n/i;
-	// 	elem[6].replace(reg, '');
-	// 	db.run(teamRowImportSQL, [elem[7],elem[6]]);
-	// });
+	
+	inputData.forEach((elem) => {
+		elem[6].replace(/-\n/i, '');
+		if (teams[elem[7]] == undefined && elem != inputData[0]) {
+			teams[elem[7]] = elem[6];
+		}
+	});
+	
+	db.serialize( () => {
+		db.run('BEGIN');
+		for (key in teams) {
+			db.run(teamRowImportSQL, [key,teams[key]]);
+		} 
+		db.run('END');
+	});
 }
 
 module.exports.importer = importer;
+module.exports.teams = teams;
 
 
 // [ '2',
@@ -17,8 +30,8 @@ module.exports.importer = importer;
 //   '23',
 //   '170',
 //   '60',
-//   'China',
-//   'CHN',
+//6   'China',
+//7   'CHN',
 //   '2012 Summer',
 //   '2012',
 //   'Summer',

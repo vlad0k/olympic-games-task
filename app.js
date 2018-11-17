@@ -1,7 +1,7 @@
 const startTime = Date.now();
 
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs'),
+const sqlite3 = require('sqlite3').verbose(),
+      fs = require('fs'),
       readline = require('readline');
 
 const db = new sqlite3.Database('./db/olympic_history.db', (err) => {
@@ -11,8 +11,9 @@ const db = new sqlite3.Database('./db/olympic_history.db', (err) => {
   console.log('Connected to the in-memory SQlite database.\n');
 });
 
-const athletes = require('./database_filler/athletes')
-const teams = require('./database_filler/teams')
+const dbCleaner = require('./database_filler/db_cleaner')
+      athletes = require('./database_filler/athletes'),
+      teams = require('./database_filler/teams');
 
 let inputFilePath = `./csv/athlete_events.csv`,
     inputStream = fs.createReadStream(inputFilePath),
@@ -25,7 +26,7 @@ let lineSplitter = (line) => {
     .map((currentValue) =>
       currentValue[0] == '"' && currentValue[currentValue.length - 1] == '"' ?
         currentValue.substr(1, currentValue.length - 2) 
-        : 
+      : 
         currentValue
     )
   inputData.push(lineSplits);
@@ -35,23 +36,25 @@ let lineSplitter = (line) => {
 rl
   .on('line', lineSplitter)
   .on('close', () => {
-      console.log(`Done reading file.\n` + 
-                  `Time: ${(Date.now() - startTime) / 1000}\n`
-      );
+      console.log(`Done reading file.\n`);
       db.serialize(() => {
-        teams.importer(db, inputData);
-        
+        dbCleaner.clean(db);
+        teams.importer(db, inputData, teams.teams);
+        athletes.log();
+        db.close((err) => {
+          if (err) {
+            return console.error(err.message);
+          }
+          console.log('\nThe database connection is closed.\n' +
+                      'Time: ' +  ((Date.now() - startTime) / 1000));
+        });
       
       }
        
       ); 
+
       
   });
 
-db.close((err) => {
-  if (err) {
-    return console.error(err.message);
-  }
-  console.log('\nThe database connection is closed.');
-});
+
 

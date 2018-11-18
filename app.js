@@ -25,8 +25,8 @@ let lineSplitter = (line) => {
     .split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/g)
     .map((currentValue) =>
       currentValue[0] == '"' && currentValue[currentValue.length - 1] == '"' ?
-        currentValue.substr(1, currentValue.length - 2) 
-      : 
+        currentValue.substr(1, currentValue.length - 2)
+      :
         currentValue
     )
   inputData.push(lineSplits);
@@ -36,10 +36,10 @@ let lineSplitter = (line) => {
 rl
   .on('line', lineSplitter)
   .on('close', () => {
-      console.log(`Done reading file.\n`);
+      console.log(`Done reading file.\n`, 'Time: ' +  ((Date.now() - startTime) / 1000));
       db.serialize(() => {
         dbCleaner.clean(db);
-        teams.importer(db, inputData, teams.teams);        
+        teams.importer(db, inputData, teams.teams);
 
         athletes.importer(db, inputData, athletes.athletes, teams.teams);
 
@@ -50,13 +50,10 @@ rl
           console.log('\nThe database connection is closed.\n' +
                       'Time: ' +  ((Date.now() - startTime) / 1000));
         });
-      
+
       }
-       
-      ); 
 
-      
+      );
+
+
   });
-
-
-

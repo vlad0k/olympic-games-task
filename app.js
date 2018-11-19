@@ -39,10 +39,10 @@ rl
       console.log(`Done reading file.\n`, 'Time: ' +  ((Date.now() - startTime) / 1000));
       db.serialize(() => {
         dbCleaner.clean(db);
+
+
+        athletes.importer(db, inputData, athletes.athletes);
         teams.importer(db, inputData, teams.teams);
-
-        athletes.importer(db, inputData, athletes.athletes, teams.teams);
-
         db.close((err) => {
           if (err) {
             return console.error(err.message);

@@ -1,18 +1,15 @@
 let athletes = {}; //dictionary of athletes id
 
-function importer(db, inputData, athletes){
+function importer(db, inputData, athletes, teamIDs){
 		inputData.forEach((elem) => { // edits name and creates dictionary athletes
 
-
 			if (athletes[elem[0]] == undefined && elem != inputData[0]){
-				if (elem == inputData[1])
-					console.log(teamIDs);
 				athletes[elem[0]] = {
 					'fullName': elem[1].replace(/[\(\"].*?[\)\"]/gi, ''),
 					'age': elem[3],
 					'sex': elem[2] == 'M' ? 0 : 1,
 					'params': {},
-					'teamID': 0
+					'teamID': teamIDs[elem[7]]
 				}
 				if (elem[4] != 'NA')
 					athletes[elem[0]].params.heigth = elem[4];

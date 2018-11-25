@@ -19,7 +19,6 @@ function importer(db, inputData, eventsIDs, events){
 			db.run(teamRowImportSQL, key);
 			eventsIDs[key] = ++i;
 		}
-		console.log(eventsIDs);
 		db.run('COMMIT');
 	});
 }

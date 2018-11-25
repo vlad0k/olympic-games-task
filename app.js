@@ -15,6 +15,7 @@ const dbCleaner = require('./database_filler/db_cleaner')
       athletes = require('./database_filler/athletes'),
       teams = require('./database_filler/teams'),
       events = require('./database_filler/events');
+      games = require('./database_filler/games');
 
 let inputFilePath = `./csv/athlete_events.csv`,
     inputStream = fs.createReadStream(inputFilePath),
@@ -42,7 +43,9 @@ rl
         dbCleaner.clean(db);
         teams.importer(db, inputData, teams.teams);
         athletes.importer(db, inputData, athletes.athletes, teams.teamIDs);
-        events.importer(db, inputData, events.eventsIDs, events.events)
+        events.importer(db, inputData, events.eventsIDs, events.events);
+        games.importer(db, inputData, games.games, games.gamesIDs);
+        
         db.close((err) => {
           if (err) {
             return console.error(err.message);

@@ -25,7 +25,6 @@ function importer(db, inputData, games, gamesIDs){
 		}
 
 		db.run('COMMIT');
-    console.log(gamesIDs);
 	});
 }
 

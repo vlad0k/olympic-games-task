@@ -43,7 +43,7 @@ rl
       db.serialize(() => {
         dbCleaner.clean(db);
         teams.importer(db, inputData, teams.teams);
-        athletes.importer(db, inputData, athletes.athletes, teams.teamIDs);
+        athletes.importer(db, inputData, athletes.athletes, teams.teamIDs, athletes.athletesIDs);
         events.importer(db, inputData, events.eventsIDs, events.events);
         games.importer(db, inputData, games.games, games.gamesIDs);
         sports.importer(db, inputData, sports.sportsIDs, sports.sports);

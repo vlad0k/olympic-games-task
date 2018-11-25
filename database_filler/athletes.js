@@ -1,6 +1,7 @@
 let athletes = {}; //dictionary of athletes id
+let athletesIDs = {};
 
-function importer(db, inputData, athletes, teamIDs){
+function importer(db, inputData, athletes, teamIDs, athletesIDs){
 		inputData.forEach((elem) => { // edits name and creates dictionary athletes
 
 			if (athletes[elem[0]] == undefined && elem != inputData[0]){
@@ -23,6 +24,7 @@ function importer(db, inputData, athletes, teamIDs){
 
 			db.run('BEGIN TRANSACTION');
 			var stmt = db.prepare(athletesSQL);
+			var i = 0;
 			for(key in athletes){
 				stmt.run({
 					$fullName: athletes[key].fullName,
@@ -31,7 +33,9 @@ function importer(db, inputData, athletes, teamIDs){
 					$params: JSON.stringify(athletes[key].params),
 					$teamID: athletes[key].teamID
 				});
+				athletesIDs[athletes[key].fullName] = ++i;
 			}
+			console.log(athletesIDs);
 			stmt.finalize();
 			db.run('COMMIT');
 		});
@@ -40,6 +44,7 @@ function importer(db, inputData, athletes, teamIDs){
 }
 module.exports.importer = importer;
 module.exports.athletes = athletes;
+module.exports.athletesIDs = athletesIDs;
 
 
 // [ '2',

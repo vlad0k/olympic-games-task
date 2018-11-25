@@ -14,6 +14,7 @@ const db = new sqlite3.Database('./db/olympic_history.db', (err) => {
 const dbCleaner = require('./database_filler/db_cleaner')
       athletes = require('./database_filler/athletes'),
       teams = require('./database_filler/teams');
+      teams = require('./database_filler/events');
 
 let inputFilePath = `./csv/athlete_events.csv`,
     inputStream = fs.createReadStream(inputFilePath),
@@ -41,7 +42,6 @@ rl
         dbCleaner.clean(db);
         teams.importer(db, inputData, teams.teams);
         athletes.importer(db, inputData, athletes.athletes, teams.teamIDs);
-
         db.close((err) => {
           if (err) {
             return console.error(err.message);

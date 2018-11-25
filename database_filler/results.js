@@ -1,25 +1,45 @@
-let results = {}; // dictionary NOC : country
+let results = []; // dictionary NOC : country
 var resultsIDs = {};
 
-function importer(db, inputData, results, gamesIDs){
+function importer(db, inputData, results, athletesIDs, gamesIDs, sportsIDs, eventsIDs){
 	indexDrop = `DROP INDEX IF EXIST db.results`;
 
-	teamRowImportSQL = `INSERT INTO results(year, season, city) VALUES (?, ?, ?)`;
+	teamRowImportSQL = `INSERT INTO results(athlete_id, game_id, sport_id, event_id, medal) VALUES (?, ?, ?, ?, ?)`;
 
 	inputData.forEach((elem) => {
-    for (key in athletesIDs){
-      if (results[athletesIDs[key]] == undefined && elem != inputData[0]) {
-        results[athletesIDs[key]].gameId = 
-  		}
-    }
+    if (elem != inputData[0]) {
+      var medal;
+      switch (elem[14]){
+        case 'NA':
+          medal = 0;
+          break;
+        case 'Gold':
+          medal = 1;
+          break;
+        case 'Silver':
+          medal = 2;
+          break;
+        case 'Bronze':
+          medal = 3;
+          break;
+      }
 
+          results.push({
+            'athleteID': athletesIDs[elem[1].replace(/[\(\"].*?[\)\"]/gi, '')],
+            'gameId': gamesIDs[elem[8]],
+            'sportId': sportsIDs[elem[12]],
+            'eventId': eventsIDs[elem[13]],
+            'medal': medal
+          });
+    }
 	});
 
 	db.serialize( () => {
 		db.run('BEGIN TRANSACTION');
     var i = 0;
 		for (key in results) {
-			db.run(teamRowImportSQL, [games[key].year, games[key].season, games[key].city]);
+
+			db.run(teamRowImportSQL, [results[key].athleteID, results[key].gameId, results[key].sportId, results[key].eventId, results[key].medal]);
 			resultsIDs[key] = ++i;
 		}
 

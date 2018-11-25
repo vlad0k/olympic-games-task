@@ -35,7 +35,7 @@ function importer(db, inputData, athletes, teamIDs, athletesIDs){
 				});
 				athletesIDs[athletes[key].fullName] = ++i;
 			}
-			console.log(athletesIDs);
+
 			stmt.finalize();
 			db.run('COMMIT');
 		});

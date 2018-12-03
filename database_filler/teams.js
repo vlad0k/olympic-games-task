@@ -15,11 +15,12 @@ function importer(db, inputData, teams){
 
 	db.serialize( () => {
 		db.run('BEGIN TRANSACTION');
+		let insert = db.prepare(teamRowImportSQL);
 		for (key in teams) {
-			db.run(teamRowImportSQL, [key,teams[key]]);
+			insert.run([key,teams[key]]);
 			teamIDs[key] = ++i;
 		}
-
+		insert.finalize();
 		db.run('COMMIT');
 	});
 }

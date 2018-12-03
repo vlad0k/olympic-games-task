@@ -18,11 +18,13 @@ function importer(db, inputData, games, gamesIDs){
 
 	db.serialize( () => {
 		db.run('BEGIN TRANSACTION');
+		let insert = db.prepare(teamRowImportSQL);
     var i = 0;
 		for (key in games) {
-			db.run(teamRowImportSQL, [games[key].year, games[key].season, games[key].city]);
+			insert.run([games[key].year, games[key].season, games[key].city]);
 			gamesIDs[key] = ++i;
 		}
+		insert.finalize();
 
 		db.run('COMMIT');
 	});

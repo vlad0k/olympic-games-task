@@ -14,11 +14,13 @@ function importer(db, inputData, sportsIDs, sports){
 
 	db.serialize( () => {
 		db.run('BEGIN TRANSACTION');
+		let insert = db.prepare(teamRowImportSQL);
 		var i = 0;
 		for (key in sports) {
-			db.run(teamRowImportSQL, key);
+			insert.run(key);
 			sportsIDs[key] = ++i;
-		}  
+		}
+		insert.finalize();
 		db.run('COMMIT');
 	});
 }

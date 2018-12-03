@@ -1,3 +1,4 @@
+console.clear();
 const startTime = Date.now();
 
 const sqlite3 = require('sqlite3').verbose(),
@@ -23,8 +24,6 @@ let inputFilePath = `./csv/athlete_events.csv`,
     inputStream = fs.createReadStream(inputFilePath),
     rl = readline.createInterface(inputStream,),
     inputData = [];
-
-console.clear();
 
 let lineSplitter = (line) => {
   lineSplits = line
@@ -55,8 +54,9 @@ rl
           if (err) {
             return console.error(err.message);
           }
-          console.log('\nThe database connection is closed.\n' +
-                      'Time: ' +  ((Date.now() - startTime) / 1000));
+          console.clear()
+          console.log('The database has been filled.\n' +
+                      'Script worked for: ' +  ((Date.now() - startTime) / 1000) + ' sec');
         });
 
       }

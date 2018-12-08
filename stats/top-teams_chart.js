@@ -1,4 +1,4 @@
-function topTeams() {
-  console.log('topTeams');
+function topTeams(params) {
+  console.log(params);
 }
 module.exports = topTeams;

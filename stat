@@ -1,1 +1,1 @@
-#!/usr/bin/env node stats
+#!/usr/bin/env node ./stats/stat_main

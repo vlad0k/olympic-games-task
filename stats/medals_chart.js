@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const EventEmmiter = require('events');
+const printBar = require('./stats/print')
 
 function medals(params) {
 
@@ -59,50 +60,32 @@ function checkInput(params) { // returns object with command line params
 }
 
 function getChart(params) {
+
   const db = new sqlite3.Database('./db/olympic_history.db', sqlite3.OPEN_READONLY);
   const dbEvents = new EventEmmiter();
-
-  db.all(`SELECT id FROM teams WHERE noc_name = (?)`, [params.noc], (err, rows) => {
-    params.teamID = rows[0].id;
-    dbEvents.emit('gotTeamId');
-  });
-
-  dbEvents.on('gotTeamId', () =>{
-    db.all('SELECT id FROM athletes WHERE team_id = (?)', [params.teamID], (err, rows) => {
-      params.athleteIDs = [];
-      for (i in rows){
-        params.athleteIDs.push(rows[i].id);
-      }
-      dbEvents.emit('gotAthlIDs');
-    });
-  });
-
-  dbEvents.on('gotAthlIDs', () => {
-    db.all(`SELECT id, year FROM games WHERE season = ?`, params.season, (err, rows) => {
-      params.games = rows;
-      dbEvents.emit('gotGames');
-    });
-  });
-
-  dbEvents.on('gotGames', () =>{
-    var checkGamesSQL = `game_id = (${params.games[0].id}`;
-    for (key in params.games){
-      checkGamesSQL += (key != 0) ? (' OR ' + params.games[key].id) : '';
+  const MEDAL = params.medal
+  db.all(`
+    SELECT year as Year, COUNT(medal) AS Amount FROM results
+      LEFT JOIN athletes ON results.athlete_id = athletes.id
+      LEFT JOIN games ON results.game_id = games.id
+      LEFT JOIN teams ON athletes.team_id = teams.id
+    WHERE medal = ${params.medal ? params.medal : '(1,2,3)'}
+      AND
+          noc_name = $noc
+    GROUP BY year
+    ORDER BY COUNT(medal) DESC
+  `, {
+    $noc: params.noc
+  },
+  (err,rows)=> {
+    if(err){
+      console.log(err.message);
+      return;
     }
-    checkGamesSQL += ')';
-    var checkMedalSQL = 'AND (medal'
-    if (params.medal != 0){
-      checkMedalSQL += ` = ${params.medal})`;
-    }
-    else {
-      checkMedalSQL += ' != 0)'
-    }
-    console.log(`SELECT athlete_id, game_id FROM results WHERE medal ${params.medal != 0 ? '= '+params.medal : '!= 0'}`);
-    db.all(`SELECT athlete_id, game_id FROM results WHERE medal ${params.medal != 0 ? '= '+params.medal : '!= 0'}`, (err, rows) => {
-      //check and count
-    })
+    params.result = rows;
+    printBar(params.result);
   });
+
 }
-
 
 module.exports = medals;

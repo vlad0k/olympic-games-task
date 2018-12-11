@@ -75,6 +75,10 @@ function getChart(params) {
       return;
     }
     params.result = rows;
+    if (rows.length == 0){
+      console.log("No result for such params");
+      return;
+    }
     console.log('NOC', 'Amount');
     printBar(params.result);
   });

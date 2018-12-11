@@ -83,7 +83,7 @@ function getChart(params) {
     }
     params.result = rows;
     if (rows.length == 0){
-      console.log("Result is empty for such params");
+      console.log("No result for such params");
       return;
     }
     console.log('Year', 'Amount');

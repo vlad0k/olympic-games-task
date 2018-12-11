@@ -1,10 +1,8 @@
 const sqlite3 = require('sqlite3').verbose();
-const EventEmmiter = require('events');
-const printBar = require('./stats/print')
 
 function medals(params) {
 
-  var params = checkInput(params);
+  params = checkInput(params);
 
   if (params == false) {
     return;
@@ -62,8 +60,6 @@ function checkInput(params) { // returns object with command line params
 function getChart(params) {
 
   const db = new sqlite3.Database('./db/olympic_history.db', sqlite3.OPEN_READONLY);
-  const dbEvents = new EventEmmiter();
-  const MEDAL = params.medal
   db.all(`
     SELECT year as Year, COUNT(medal) AS Amount FROM results
       LEFT JOIN athletes ON results.athlete_id = athletes.id
@@ -72,10 +68,13 @@ function getChart(params) {
     WHERE medal = ${params.medal ? params.medal : '(1,2,3)'}
       AND
           noc_name = $noc
+      AND
+          season = $season
     GROUP BY year
-    ORDER BY COUNT(medal) DESC
+    ORDER BY year DESC
   `, {
-    $noc: params.noc
+    $noc: params.noc,
+    $season: params.season
   },
   (err,rows)=> {
     if(err){
@@ -83,9 +82,27 @@ function getChart(params) {
       return;
     }
     params.result = rows;
+    console.log('Year', 'Amount');
     printBar(params.result);
   });
-
+  db.close();
 }
+
+function printBar(result) {
+  barSymbol = '█';
+  max = 0;
+  for(i in result){
+    max = result[i].Amount > max ? result[i].Amount : max;
+  }
+
+  result.forEach((elem) => {
+    bar = '';
+    for(let i = 0; i < (elem.Amount / max * 100); i++){
+      bar += barSymbol;
+    }
+    console.log((elem.Year != undefined ? elem.Year : elem.noc)  + ' ' + bar + ' ' + elem.Amount );
+  })
+}
+
 
 module.exports = medals;

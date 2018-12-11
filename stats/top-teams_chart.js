@@ -15,7 +15,7 @@ function checkInput(params) { // returns object with command line params
   let topTeamsParams = {};
 
   params.forEach((elem) => {
-    topTeamsParams.medal = '0';
+    topTeamsParams.medal = 0;
 
     switch(elem) {
       case 'summer':
@@ -35,8 +35,8 @@ function checkInput(params) { // returns object with command line params
         break;
     }
 
-    if (elem.length == 4){
-      topTeamsParams.year = Number(elem);
+    if (elem.length == 4 && elem != 'gold'){
+      topTeamsParams.year = parseInt(elem);
     }
 
   });
@@ -55,13 +55,12 @@ function getChart(params) {
   const MEDAL = params.medal
 
   let yearExp = (params.year == undefined ) ?  '' : `AND year = ${params.year}`;
-
   db.all(`
     SELECT noc_name AS noc, COUNT(medal) AS Amount FROM results
       LEFT JOIN athletes ON results.athlete_id = athletes.id
       LEFT JOIN games ON results.game_id = games.id
       LEFT JOIN teams ON athletes.team_id = teams.id
-    WHERE medal = ${params.medal ? params.medal : '(1,2,3)'}
+    WHERE medal = ${params.medal != 0 ? params.medal : '(1,2,3)'}
       AND
           season = $season
           ${yearExp}
